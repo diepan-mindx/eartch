@@ -5,14 +5,14 @@ document.addEventListener("DOMContentLoaded", () => {
   let allCountries = []; // Lưu trữ tất cả tên quốc gia cho chức năng gợi ý
 
   // Khởi tạo danh sách quốc gia để gợi ý tìm kiếm
-  //   fetch("https://restcountries.com/v3.1/all")
-  //     .then((res) => res.json())
-  //     .then((data) => {
-  //       allCountries = data.map((c) => c.name.common).sort();
-  //     })
-  //     .catch((error) => {
-  //       console.error("Lỗi khi tải danh sách quốc gia:", error);
-  //     });
+  fetch("https://restcountries.com/v3.1/all?fields=name")
+    .then((res) => res.json())
+    .then((data) => {
+      allCountries = data.map((c) => c.name.common).sort();
+    })
+    .catch((error) => {
+      console.error("Lỗi khi tải danh sách quốc gia:", error);
+    });
 
   // Tạo phần tử để hiển thị gợi ý
   const suggestions = document.createElement("ul");

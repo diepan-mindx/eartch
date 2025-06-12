@@ -1,100 +1,90 @@
-document.addEventListener('DOMContentLoaded', function() {
-    const themeToggleBtn = document.getElementById('theme-toggle');
-    const body = document.body;
+let allCountryNames = [];
 
-    // 1. Kiểm tra trạng thái lưu trữ trong localStorage khi tải trang
-    const savedTheme = localStorage.getItem('theme');
-    if (savedTheme === 'dark') {
-        body.classList.add('dark-mode');
-    } else {
-        // Mặc định là light mode hoặc nếu không có gì trong localStorage
-        body.classList.remove('dark-mode');
+document.addEventListener("DOMContentLoaded", function () {
+  const searchInput1 = document.getElementById("searchInput1");
+  const searchInput2 = document.getElementById("searchInput2");
+  const suggestions1 = document.getElementById("suggestions1");
+  const suggestions2 = document.getElementById("suggestions2");
+
+  // Load only country names for suggestions
+  async function loadCountryNames() {
+    try {
+      const res = await fetch("https://restcountries.com/v3.1/all?fields=name");
+      const data = await res.json();
+      allCountryNames = data.map(c => c.name.common).sort();
+    } catch (error) {
+      console.error("Lỗi khi tải danh sách quốc gia:", error);
     }
+  }
 
-    // 2. Xử lý sự kiện click nút chuyển đổi
-    themeToggleBtn.addEventListener('click', function() {
-        body.classList.toggle('dark-mode'); // Thêm hoặc gỡ bỏ class 'dark-mode'
+  loadCountryNames();
 
-        // Lưu trạng thái hiện tại vào localStorage
-        if (body.classList.contains('dark-mode')) {
-            localStorage.setItem('theme', 'dark');
-        } else {
-            localStorage.setItem('theme', 'light');
+  function setupSuggestion(input, suggestionBox) {
+    let debounceTimer;
+
+    input.addEventListener("input", () => {
+      clearTimeout(debounceTimer);
+      debounceTimer = setTimeout(() => {
+        const keyword = input.value.trim().toLowerCase();
+        suggestionBox.innerHTML = "";
+        suggestionBox.style.display = "none";
+
+        if (keyword.length > 1) {
+          const matches = allCountryNames
+            .filter(name => name.toLowerCase().includes(keyword))
+            .slice(0, 5);
+
+          if (matches.length) {
+            suggestionBox.style.display = "block";
+            matches.forEach(name => {
+              const li = document.createElement("li");
+              li.textContent = name;
+              li.style.cssText = "padding:10px; cursor:pointer; border-bottom:1px solid #eee;";
+              li.addEventListener("click", () => {
+                input.value = name;
+                suggestionBox.innerHTML = "";
+                suggestionBox.style.display = "none";
+              });
+              suggestionBox.appendChild(li);
+            });
+          }
         }
+      }, 300);
     });
+
+    document.addEventListener("click", (e) => {
+      if (!input.contains(e.target) && !suggestionBox.contains(e.target)) {
+        suggestionBox.innerHTML = "";
+        suggestionBox.style.display = "none";
+      }
+    });
+  }
+
+  setupSuggestion(searchInput1, suggestions1);
+  setupSuggestion(searchInput2, suggestions2);
 });
 
-let allCountriesData = []; // Store full country data
-let allCountryNames = []; // Store common names for suggestions
+// Fetch full country data by name
+async function getCountryData(name) {
+  try {
+    const res = await fetch(`https://restcountries.com/v3.1/name/${encodeURIComponent(name)}?fullText=true`);
+    if (!res.ok) throw new Error(`Không tìm thấy quốc gia: ${name}`);
+    const data = await res.json();
+    return data[0];
+  } catch (error) {
+    console.error(error.message);
+    alert(error.message);
+    return null;
+  }
+}
 
-document.addEventListener('DOMContentLoaded', function() {
-    const searchInput1 = document.getElementById('searchInput1');
-    const searchInput2 = document.getElementById('searchInput2');
-    const suggestions1 = document.getElementById('suggestions1');
-    const suggestions2 = document.getElementById('suggestions2');
-
-    // Load all country data once
-    fetch('https://restcountries.com/v3.1/all')
-        .then(res => res.json())
-        .then(data => {
-            allCountriesData = data; // Store full data
-            allCountryNames = data.map(c => c.name.common).sort(); // Store names for suggestions
-        })
-        .catch(error => {
-            console.error('Lỗi khi tải danh sách quốc gia:', error);
-        });
-
-    // Function to handle input and display suggestions
-    const setupSuggestionInput = (inputElement, suggestionsListElement) => {
-        let debounceTimer;
-        inputElement.addEventListener('input', () => {
-            clearTimeout(debounceTimer);
-            debounceTimer = setTimeout(() => {
-                const keyword = inputElement.value.toLowerCase();
-                suggestionsListElement.innerHTML = '';
-                suggestionsListElement.style.display = 'none';
-
-                if (keyword.length > 1) {
-                    const filtered = allCountryNames.filter(name =>
-                        name.toLowerCase().includes(keyword)
-                    ).slice(0, 5); // Limit to 5 suggestions
-
-                    if (filtered.length > 0) {
-                        suggestionsListElement.style.display = 'block';
-                        filtered.forEach(name => {
-                            const li = document.createElement('li');
-                            li.textContent = name;
-                            li.style.cssText = 'padding:10px; cursor:pointer; border-bottom:1px solid #eee;';
-                            li.addEventListener('click', () => {
-                                inputElement.value = name;
-                                suggestionsListElement.innerHTML = '';
-                                suggestionsListElement.style.display = 'none';
-                            });
-                            suggestionsListElement.appendChild(li);
-                        });
-                    }
-                }
-            }, 300);
-        });
-
-        // Hide suggestions when clicking outside
-        document.addEventListener('click', (e) => {
-            if (!inputElement.contains(e.target) && !suggestionsListElement.contains(e.target)) {
-                suggestionsListElement.innerHTML = '';
-                suggestionsListElement.style.display = 'none';
-            }
-        });
-    };
-
-    setupSuggestionInput(searchInput1, suggestions1);
-    setupSuggestionInput(searchInput2, suggestions2);
-});
-
-function compare() {
-  const name1 = document.getElementById("searchInput1").value;
-  const name2 = document.getElementById("searchInput2").value;
+// Main compare function
+async function compare() {
+  const name1 = document.getElementById("searchInput1").value.trim();
+  const name2 = document.getElementById("searchInput2").value.trim();
   const container = document.getElementById("compareContainer");
   const result = document.getElementById("compareResult");
+
   container.innerHTML = "";
   result.innerHTML = "";
 
@@ -103,24 +93,23 @@ function compare() {
     return;
   }
 
-  const country1 = allCountriesData.find(c => c.name.common === name1);
-  const country2 = allCountriesData.find(c => c.name.common === name2);
+  const country1 = await getCountryData(name1);
+  const country2 = await getCountryData(name2);
 
-  if (!country1 || !country2) {
-      alert("Không tìm thấy thông tin cho một hoặc cả hai quốc gia đã nhập. Vui lòng kiểm tra lại tên.");
-      return;
-  }
+  if (!country1 || !country2) return;
 
   [country1, country2].forEach(country => {
     const div = document.createElement("div");
-    div.className = "card"; // Reuse existing card class
+    div.className = "card";
 
-    const languages = country.languages ? Object.values(country.languages).join(", ") : "Không rõ";
-    const currency = country.currencies ? Object.values(country.currencies)[0].name : "Không rõ";
     const capital = country.capital?.[0] || "Không rõ";
+    const languages = country.languages ? Object.values(country.languages).join(", ") : "Không rõ";
+    const currency = country.currencies
+      ? Object.values(country.currencies).map(c => `${c.name} (${c.symbol || ""})`).join(", ")
+      : "Không rõ";
 
     div.innerHTML = `
-      <img src="${country.flags.svg}" alt="Flag" class="country-flag-compare" />
+      <img src="${country.flags.svg}" alt="Flag of ${country.name.common}" class="country-flag-compare" />
       <h3>${country.name.common}</h3>
       <p><strong>Thủ đô:</strong> ${capital}</p>
       <p><strong>Dân số:</strong> ${country.population.toLocaleString()}</p>
@@ -131,11 +120,11 @@ function compare() {
     container.appendChild(div);
   });
 
-  const largerArea = country1.area > country2.area ? name1 : (country1.area < country2.area ? name2 : "Bằng nhau");
-  const morePop = country1.population > country2.population ? name1 : (country1.population < country2.population ? name2 : "Bằng nhau");
-  const lang1 = country1.languages ? Object.keys(country1.languages).length : 0;
-  const lang2 = country2.languages ? Object.keys(country2.languages).length : 0;
-  const moreLang = lang1 > lang2 ? name1 : (lang1 < lang2 ? name2 : "Bằng nhau");
+  const largerArea = country1.area > country2.area ? name1 : country1.area < country2.area ? name2 : "Bằng nhau";
+  const morePop = country1.population > country2.population ? name1 : country1.population < country2.population ? name2 : "Bằng nhau";
+  const langCount1 = country1.languages ? Object.keys(country1.languages).length : 0;
+  const langCount2 = country2.languages ? Object.keys(country2.languages).length : 0;
+  const moreLang = langCount1 > langCount2 ? name1 : langCount1 < langCount2 ? name2 : "Bằng nhau";
 
   result.innerHTML = `
     <h3>📊 Kết quả So sánh:</h3>
