@@ -15,43 +15,9 @@
   <div class="container">
     <div id="favoritesList" class="card-grid"></div>
   </div>
-
-  <script>
-    const user = localStorage.getItem("username") || "guest";
-    const key = "favorites_" + user;
-    const favorites = JSON.parse(localStorage.getItem(key)) || [];
-    const listContainer = document.getElementById("favoritesList");
-
-    if (favorites.length === 0) {
-      listContainer.innerHTML = "<p>Bạn chưa có quốc gia nào trong danh sách yêu thích.</p>";
-    } else {
-      favorites.forEach(item => {
-        const div = document.createElement("div");
-        div.className = "card";
-        div.innerHTML = `
-          <img src="${item.flag}" alt="Flag of ${item.name}" style="width:80px; margin-bottom:10px;" />
-          <h3>${item.name}</h3>
-          <button class="btn view" onclick="viewCountry('${item.name}')">🔍 Xem chi tiết</button>
-          <button class="btn delete" onclick="removeFavorite('${item.name}')">🗑️ Xóa</button>
-        `;
-        listContainer.appendChild(div);
-      });
-    }
-
-    function viewCountry(name) {
-      window.location.href = `index.html?country=${encodeURIComponent(name)}`;
-    }
-
-    function removeFavorite(name) {
-      const confirmDel = confirm(`Bạn có chắc muốn xóa ${name} khỏi danh sách yêu thích?`);
-      if (!confirmDel) return;
-
-      const updated = favorites.filter(item => item.name !== name);
-      localStorage.setItem(key, JSON.stringify(updated));
-      location.reload();
-    }
-  </script>
       </ul>
 <a href="home.html" class="btn-primary">🔙 Quay lại trang chủ</a>
+
+<script src="account.js"></script>
 </body>
 </html>

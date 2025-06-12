@@ -11,8 +11,9 @@
 <body>
   <header>
   <nav>
-    <a href="signup.html" class="btn-small-outline">Đăng nhập</a>
-    <a href="signin.html" class="btn-small-outline">Đăng ký</a>
+    <a href="signin.html" class="btn-small-outline" id="login-btn">Đăng nhập</a>
+    <a href="signup.html" class="btn-small-outline" id="signup-btn">Đăng ký</a>
+    <a href="home.html" class="btn-small-outline" id="logout-btn">Đăng xuất</a>
   </nav>
     <h1>EARTH 🌍 Ứng dụng Tra cứu Quốc gia</h1>   
     <p>Khám phá, so sánh và tìm hiểu thông tin các quốc gia trên thế giới</p>
@@ -27,7 +28,7 @@
     <div class="card" data-icon="❤️">
       <h2>Quốc gia yêu thích</h2>
       <p>Bình trọn yêu thích 1 Quốc gia</p>
-      <a href="favorites.html">Vào trang</a>
+      <a href="#" id="goto-fav-btn">Vào trang</a>
     </div>
     <div class="card" data-icon="⚖️">
       <h2>So sánh Quốc gia</h2>
@@ -48,5 +49,7 @@
   <footer>
     © 2025 Ứng dụng Tra cứu Quốc gia. Thiết kế bởi Nghĩa.
   </footer>
+
+  <script src="account.js"></script>
 </body>
 </html>

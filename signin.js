@@ -1,29 +1,4 @@
-// signin.js
-document.addEventListener('DOMContentLoaded', function() {
-    const themeToggleBtn = document.getElementById('theme-toggle');
-    const body = document.body;
 
-    // 1. Kiểm tra trạng thái lưu trữ trong localStorage khi tải trang
-    const savedTheme = localStorage.getItem('theme');
-    if (savedTheme === 'dark') {
-        body.classList.add('dark-mode');
-    } else {
-        // Mặc định là light mode hoặc nếu không có gì trong localStorage
-        body.classList.remove('dark-mode');
-    }
-
-    // 2. Xử lý sự kiện click nút chuyển đổi
-    themeToggleBtn.addEventListener('click', function() {
-        body.classList.toggle('dark-mode'); // Thêm hoặc gỡ bỏ class 'dark-mode'
-
-        // Lưu trạng thái hiện tại vào localStorage
-        if (body.classList.contains('dark-mode')) {
-            localStorage.setItem('theme', 'dark');
-        } else {
-            localStorage.setItem('theme', 'light');
-        }
-    });
-});
 document.addEventListener('DOMContentLoaded', () => {
     const signinForm = document.getElementById('signinForm');
     const usernameInput = document.getElementById('username');
@@ -53,7 +28,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (foundUser) {
             // Đăng nhập thành công
-            localStorage.setItem('username', username); // Lưu tên người dùng vào localStorage
+            localStorage.setItem('currentUser', username); // Lưu tên người dùng vào localStorage
             alert('Đăng nhập thành công!');
             window.location.href = 'home.html'; // Chuyển hướng về trang chủ
         } else {
